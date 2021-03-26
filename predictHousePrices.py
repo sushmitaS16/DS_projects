@@ -7,7 +7,6 @@ import seaborn as sns
 
 from sklearn.preprocessing import OrdinalEncoder, LabelEncoder, OneHotEncoder
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from sklearn.model_selection import train_test_split
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import cross_val_score, cross_val_predict
 from sklearn.linear_model import LinearRegression
@@ -16,7 +15,7 @@ from xgboost import XGBRegressor
 from sklearn.linear_model import BayesianRidge
 
 
-###### 1. DEFINING NECESSARY CUSTOM CLASSES
+###### 0. DEFINING NECESSARY CUSTOM CLASSES
 
 class CustomAttrAdder(BaseEstimator, TransformerMixin):
 	''' class definition to apply the feature engineering i.e. modified columns to the data'''
@@ -311,7 +310,7 @@ class CategoricalAttrManager(BaseEstimator, TransformerMixin):
 		onehot_cols, cols_to_drop = self.get_onehot_cols(X, not_ordinal_cols)
 
 		# create one-hot encoded dataframes
-		OH_X, OH_y = self.prepare_onehot_enc(X[onehot_cols], y[onehot_cols])
+		OH_X, OH_y = self.perform_onehot_enc(X[onehot_cols], y[onehot_cols])
 		
 
 		#  combining both categorical sets of columns
@@ -337,8 +336,11 @@ class CategoricalAttrManager(BaseEstimator, TransformerMixin):
 
 ###### 1. OBTAIN DATA
 
-train_full = pd.read_csv("/kaggle/input/house-prices-advanced-regression-techniques/train.csv", index_col='Id')
-test_full = pd.read_csv("/kaggle/input/house-prices-advanced-regression-techniques/test.csv", index_col='Id')
+train_input = input("Input train data : ")
+test_input = input("Input test data : ")
+
+train_full = pd.read_csv(train_input, index_col='Id')
+test_full = pd.read_csv(test_input, index_col='Id')
 
 print(train_full.info())
 print("Shape training data : {}".format(train_full.shape))
@@ -566,7 +568,7 @@ features = test_prepared.select_dtypes(include = [np.number]).interpolate()
 br.fit(train_prepared)
 predictions_br = br.predict(features)
 
-# Now we’ll transform the predictions_lr to the correct form
+# Now we’ll transform the predictions_br to the correct form
 final_predictions_br = np.exp(predictions_br)
 
 submission['SalePrice'] = final_predictions_br
